@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard — Aaradhya SFS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#00524A;--teal-mid:#007A6E;--teal-lt:#0A9B8C;
+  --gold:#C8922A;--gold-lt:#E5B84A;
+  --dark:#111C1A;--muted:#5A7A75;--white:#fff;--border:#D4E0DE;
+  --page-bg:#F0F4F3;--sidebar:#0D1F1C;
+  --danger:#C0392B;--success:#1E8B5E;--warn:#D68910;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--page-bg);color:var(--dark);-webkit-font-smoothing:antialiased;}
+.hidden{display:none!important;}
+a{text-decoration:none;color:inherit;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:var(--teal);color:#fff;}.btn-primary:hover{background:var(--teal-mid);}
+.btn-gold{background:var(--gold);color:#fff;}.btn-gold:hover{background:var(--gold-lt);}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--dark);}.btn-outline:hover{border-color:var(--teal);color:var(--teal);}
+.btn-ghost{background:none;border:none;color:var(--muted);padding:5px 8px;border-radius:6px;}.btn-ghost:hover{background:rgba(0,82,74,.08);color:var(--teal);}
+.btn-danger{background:var(--danger);color:#fff;}.btn-danger:hover{opacity:.85;}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:6px;}
+.btn-xs{padding:4px 8px;font-size:11px;border-radius:5px;}
+.btn-wa{background:#25D366;color:#fff;}.btn-wa:hover{background:#1db954;}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.tag::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.7;}
+.tag-active{background:#E6F4F0;color:var(--success);}
+.tag-pending{background:#FEF3CD;color:var(--warn);}
+.tag-deployed{background:#E8F4FF;color:#1A6FAF;}
+.tag-shortlisted{background:#E8F4FF;color:#1A6FAF;}
+.tag-inactive{background:#F0F0F0;color:#888;}
+.tag-prospect{background:#F3E8FF;color:#7B3FA0;}
+.tag-rejected{background:#FFE8E8;color:var(--danger);}
+
+/* VIEWS */
+#login-view,#dash-view{display:none;}
+#login-view.show,#dash-view.show{display:block;}
+
+/* ═══ LOGIN ═══ */
+#login-view{min-height:100vh;background:var(--dark);display:flex;align-items:center;justify-content:center;position:relative;}
+.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 40%,rgba(0,82,74,.3) 0%,transparent 70%);}
+.login-card{position:relative;background:rgba(255,255,255,.04);border:1px solid rgba(200,146,42,.2);border-radius:20px;padding:44px 36px;width:100%;max-width:360px;}
+.login-logo{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#fff;text-align:center;margin-bottom:4px;}
+.login-logo span{color:var(--gold-lt);}
+.login-sub{text-align:center;font-size:13px;color:rgba(255,255,255,.35);margin-bottom:32px;}
+.lf{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.lf label{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.5px;text-transform:uppercase;}
+.lf input{padding:11px 13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;}
+.lf input:focus{outline:none;border-color:var(--teal-lt);}
+.login-err{color:#FF6B6B;font-size:13px;text-align:center;margin-bottom:8px;}
+.login-hint{text-align:center;font-size:11px;color:rgba(255,255,255,.2);margin-top:14px;}
+
+/* ═══ DASHBOARD LAYOUT ═══ */
+.dash-wrap{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:230px;background:var(--sidebar);flex-shrink:0;position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column;overflow-y:auto;z-index:100;}
+.sb-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sb-logo-text{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:#fff;}
+.sb-logo-text span{color:var(--gold-lt);}
+.sb-logo small{display:block;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,.22);letter-spacing:1.5px;margin-top:2px;}
+.sb-section{padding:14px 10px 4px;}
+.sb-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.18);letter-spacing:2px;text-transform:uppercase;padding:0 10px;margin-bottom:4px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.52);transition:all .14s;margin-bottom:1px;user-select:none;}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.88);}
+.nav-item.active{background:var(--teal);color:#fff;}
+.nav-item .ni{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.nb{margin-left:auto;background:var(--gold);color:#fff;border-radius:10px;font-size:10px;font-weight:700;padding:1px 6px;min-width:18px;text-align:center;}
+.nb.red{background:var(--danger);}
+.nav-item.active .nb{background:rgba(255,255,255,.3);}
+.sb-bottom{margin-top:auto;padding:12px 10px;border-top:1px solid rgba(255,255,255,.06);}
+.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:4px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+
+/* MAIN */
+.dash-main{margin-left:230px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:#fff;border-bottom:1px solid var(--border);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50;}
+.topbar h1{font-size:16px;font-weight:600;}
+.topbar-right{display:flex;gap:8px;align-items:center;}
+.dash-body{padding:22px 24px;flex:1;}
+
+/* PANELS */
+.panel{display:none;}.panel.active{display:block;}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-bottom:20px;}
+.kpi{background:#fff;border-radius:12px;border:1px solid var(--border);padding:16px 18px;cursor:pointer;transition:box-shadow .15s;position:relative;overflow:hidden;}
+.kpi:hover{box-shadow:0 4px 16px rgba(0,82,74,.1);}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:5px;}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:700;color:var(--dark);line-height:1;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* TABLE CARD */
+.tcard{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-bottom:18px;}
+.tcard-head{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.tcard-head h3{font-size:14px;font-weight:600;}
+.tcard-body{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:8px 13px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;background:#FAFBFA;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 13px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(0,82,74,.02);}
+.td-main{font-weight:600;}
+.td-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.filter-bar input,.filter-bar select{padding:7px 11px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--dark);background:#fff;}
+.filter-bar input{flex:1;min-width:180px;}
+.filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--teal);}
+
+/* OVERVIEW GRID */
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:0;}
+
+/* ACTIVITY */
+.act-item{display:flex;gap:12px;align-items:flex-start;padding:10px 16px;border-bottom:1px solid var(--border);}
+.act-item:last-child{border-bottom:none;}
+.act-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.act-text{font-size:13px;line-height:1.5;}
+.act-time{font-size:11px;color:var(--muted);margin-top:1px;}
+
+/* QUICK ACTIONS */
+.qa-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.qa{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .14s;font-size:13px;font-weight:500;}
+.qa:hover{border-color:var(--teal);color:var(--teal);box-shadow:0 3px 10px rgba(0,82,74,.1);}
+.qa-icon{font-size:17px;}
+
+/* PAYROLL SUMMARY */
+.pay-sum{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:16px;}
+.ps-card{background:#fff;border-radius:10px;border:1px solid var(--border);padding:13px 14px;text-align:center;}
+.ps-val{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--teal);line-height:1;}
+.ps-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+.ps-card.hi{background:var(--teal);border-color:var(--teal);}
+.ps-card.hi .ps-val{color:#fff;font-size:20px;}
+.ps-card.hi .ps-lbl{color:rgba(255,255,255,.6);}
+
+/* LEADS */
+.lead-card{background:#fff;border-radius:10px;border:1px solid var(--border);padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;transition:box-shadow .14s;}
+.lead-card:hover{box-shadow:0 4px 14px rgba(0,82,74,.08);}
+.lead-card h4{font-size:14px;font-weight:600;margin-bottom:3px;}
+.lead-meta{font-size:12px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;margin-top:3px;}
+.lead-new{background:var(--gold);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;}
+
+/* EMPTY */
+.empty{text-align:center;padding:44px 20px;color:var(--muted);}
+.empty .ei{font-size:36px;opacity:.4;margin-bottom:10px;}
+.empty h3{font-size:14px;font-weight:600;color:var(--dark);margin-bottom:5px;}
+.empty p{font-size:13px;max-width:260px;margin:0 auto 16px;}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
+.modal{background:#fff;border-radius:16px;padding:24px 26px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-hd h2{font-size:16px;font-weight:600;}
+.modal-x{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:4px 7px;border-radius:6px;line-height:1;}
+.modal-x:hover{background:var(--page-bg);}
+.mf{display:flex;flex-direction:column;gap:12px;}
+.mf .row2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.mf .fg{display:flex;flex-direction:column;gap:4px;}
+.mf .fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;}
+.mf input,.mf select,.mf textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--dark);}
+.mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,82,74,.08);}
+.mf textarea{resize:vertical;min-height:56px;}
+.mf-sep{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:1px;text-transform:uppercase;padding-top:2px;border-top:1px solid var(--border);margin-top:2px;}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;padding-top:12px;border-top:1px solid var(--border);}
+
+/* BILLING PREVIEW */
+.bp{background:var(--page-bg);border-radius:8px;padding:11px 13px;font-size:13px;margin-top:4px;}
+.bp-title{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:1px;margin-bottom:7px;}
+.bp-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.bp-row .bv{font-weight:600;}
+.bp-total{display:flex;justify-content:space-between;padding-top:7px;margin-top:4px;border-top:1px solid var(--border);font-weight:700;}
+.bp-total .bv{color:var(--teal);}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);} .dash-main{margin-left:0;}
+  .kpi-row{grid-template-columns:repeat(2,1fr);} .pay-sum{grid-template-columns:repeat(3,1fr);}
+  .ov-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login-view" class="show">
+  <div class="login-bg"></div>
+  <div class="login-card">
+    <div class="login-logo">Aaradhya <span>SFS</span></div>
+    <div class="login-sub">Internal Dashboard · Authorized Access Only</div>
+    <form onsubmit="doLogin(event)">
+      <div class="lf"><label>Username</label><input id="lu" placeholder="admin" autocomplete="off"></div>
+      <div class="lf"><label>Password</label><input id="lp" type="password" placeholder="••••••••"></div>
+      <div id="lerr" class="login-err hidden">Incorrect credentials.</div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:4px">Login →</button>
+    </form>
+    <div class="login-hint">Default: admin / aaradhya2025</div>
+    <a href="index.html" class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px;font-size:13px">← Back to Website</a>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dash-view" class="dash-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-text">Aaradhya <span>SFS</span></div>
+      <small>OPERATIONS DASHBOARD</small>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Menu</div>
+      <div class="nav-item active" id="nav-ov"   onclick="go('ov',this)"><span class="ni">📊</span> Overview</div>
+      <div class="nav-item"        id="nav-cands" onclick="go('cands',this)"><span class="ni">👤</span> Candidates <span class="nb" id="nb-c">0</span></div>
+      <div class="nav-item"        id="nav-cl"    onclick="go('cl',this)"><span class="ni">🏢</span> Clients <span class="nb" id="nb-cl">0</span></div>
+      <div class="nav-item"        id="nav-dep"   onclick="go('dep',this)"><span class="ni">🚀</span> Deployed MRs <span class="nb" id="nb-d">0</span></div>
+      <div class="nav-item"        id="nav-pay"   onclick="go('pay',this)"><span class="ni">💰</span> Payroll</div>
+      <div class="nav-item"        id="nav-leads" onclick="go('leads',this)"><span class="ni">📥</span> Enquiries <span class="nb red" id="nb-l">0</span></div>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="sb-avatar">A</div>
+        <div><div style="font-size:13px;color:#fff;font-weight:500">Admin</div><div style="font-size:11px;color:rgba(255,255,255,.28)">Aaradhya SFS</div></div>
+      </div>
+      <div class="nav-item" onclick="window.open('index.html','_blank')"><span class="ni">🌐</span> View Website</div>
+      <div class="nav-item" onclick="doLogout()"><span class="ni">🚪</span> Logout</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dash-main">
+    <div class="topbar">
+      <h1 id="dash-title">Overview</h1>
+      <div class="topbar-right" id="topbar-actions"></div>
+    </div>
+    <div class="dash-body">
+
+      <!-- OVERVIEW -->
+      <div class="panel active" id="panel-ov">
+        <div class="kpi-row" id="kpi-row"></div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;text-transform:uppercase">Quick Actions</div>
+          <div class="qa-row">
+            <div class="qa" onclick="openCandModal()"><span class="qa-icon">👤</span> Add Candidate</div>
+            <div class="qa" onclick="openClientModal()"><span class="qa-icon">🏢</span> Add Client</div>
+            <div class="qa" onclick="openDepModal()"><span class="qa-icon">🚀</span> Add Deployment</div>
+            <div class="qa" onclick="go('leads',document.getElementById('nav-leads'))"><span class="qa-icon">📥</span> View Enquiries</div>
+            <div class="qa" onclick="go('pay',document.getElementById('nav-pay'))"><span class="qa-icon">💰</span> Payroll</div>
+          </div>
+        </div>
+        <div class="ov-grid">
+          <div class="tcard">
+            <div class="tcard-head"><h3>Recent Candidates</h3><button class="btn btn-ghost btn-sm" onclick="go('cands',document.getElementById('nav-cands'))">View all →</button></div>
+            <div id="ov-cands"></div>
+          </div>
+          <div class="tcard">
+            <div class="tcard-head"><h3>Recent Activity</h3></div>
+            <div id="ov-acts"></div>
+          </div>
+        </div>
+        <div class="tcard" style="margin-top:16px">
+          <div class="tcard-head"><h3>Recent Clients</h3><button class="btn btn-ghost btn-sm" onclick="go('cl',document.getElementById('nav-cl'))">View all →</button></div>
+          <div id="ov-clients"></div>
+        </div>
+      </div>
+
+      <!-- CANDIDATES -->
+      <div class="panel" id="panel-cands">
+        <div class="filter-bar">
+          <input id="cq" placeholder="🔍  Search name, HQ, division, company..." oninput="renderCands()">
+          <select id="cfs" onchange="renderCands()">
+            <option value="">All Status</option>
+            <option value="active">Active</option><option value="shortlisted">Shortlisted</option>
+            <option value="deployed">Deployed</option><option value="pending">Pending Review</option>
+            <option value="inactive">Inactive</option><option value="rejected">Rejected</option>
+          </select>
+          <select id="cfh" onchange="renderCands()"><option value="">All HQs</option></select>
+          <select id="cfd" onchange="renderCands()"><option value="">All Divisions</option></select>
+        </div>
+        <div class="tcard">
+          <div class="tcard-head">
+            <h3>Candidate Pipeline <span id="cand-ct" style="font-size:12px;color:var(--muted);font-weight:400"></span></h3>
+            <button class="btn btn-primary btn-sm" onclick="openCandModal()">+ Add Candidate</button>
+          </div>
+          <div class="tcard-body">
+            <table><thead><tr>
+              <th>Candidate</th><th>Mobile</th><th>HQ</th><th>Role</th>
+              <th>Division</th><th>Experience</th><th>Current Co.</th><th>Exp. CTC</th><th>Status</th><th>Actions</th>
+            </tr></thead><tbody id="cand-tb"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENTS -->
+      <div class="panel" id="panel-cl">
+        <div class="filter-bar">
+          <input id="lq" placeholder="🔍  Search company, contact, territory..." oninput="renderClients()">
+          <select id="lfs" onchange="renderClients()">
+            <option value="">All Status</option>
+            <option value="active">Active</option><option value="prospect">Prospect</option><option value="inactive">Inactive</option>
+          </select>
+          <select id="lfd" onchange="renderClients()"><option value="">All Divisions</option></select>
+        </div>
+        <div class="tcard">
+          <div class="tcard-head">
+            <h3>Client Companies <span id="cl-ct" style="font-size:12px;color:var(--muted);font-weight:400"></span></h3>
+            <button class="btn btn-primary btn-sm" onclick="openClientModal()">+ Add Client</button>
+          </div>
+          <div class="tcard-body">
+            <table><thead><tr>
+              <th>Company</th><th>Contact</th><th>Mobile</th><th>Territory</th>
+              <th>Division</th><th>Roles Needed</th><th>MRs Reqd</th><th>Deployed</th><th>Service</th><th>Status</th><th>Actions</th>
+            </tr></thead><tbody id="cl-tb"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEPLOYED -->
+      <div class="panel" id="panel-dep">
+        <div class="filter-bar">
+          <input id="dq" placeholder="🔍  Search MR name, HQ, client..." oninput="renderDep()">
+          <select id="dfc" onchange="renderDep()"><option value="">All Clients</option></select>
+          <select id="dfs" onchange="renderDep()">
+            <option value="">All Status</option>
+            <option value="active">Active</option><option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="tcard">
+          <div class="tcard-head">
+            <h3>Deployed MRs <span id="dep-ct" style="font-size:12px;color:var(--muted);font-weight:400"></span></h3>
+            <button class="btn btn-primary btn-sm" onclick="openDepModal()">+ Add Deployment</button>
+          </div>
+          <div class="tcard-body">
+            <table><thead><tr>
+              <th>MR Name</th><th>Client</th><th>HQ</th><th>Role</th>
+              <th>Salary</th><th>TA/DA</th><th>Mgmt Fee</th><th>Joining Date</th><th>Status</th><th>Actions</th>
+            </tr></thead><tbody id="dep-tb"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYROLL -->
+      <div class="panel" id="panel-pay">
+        <div class="pay-sum" id="pay-sum"></div>
+        <div class="tcard">
+          <div class="tcard-head">
+            <h3>Monthly Payroll</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="pay-month" onchange="renderPayroll()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;"></select>
+              <select id="pay-fc" onchange="renderPayroll()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;"><option value="">All Clients</option></select>
+            </div>
+          </div>
+          <div class="tcard-body">
+            <table><thead><tr>
+              <th>MR Name</th><th>Client</th><th>HQ</th><th>Role</th>
+              <th>Salary</th><th>TA/DA</th><th>Mgmt Fee</th><th>Total Billing</th><th>GST (18%)</th><th>Grand Total</th>
+            </tr></thead><tbody id="pay-tb"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEADS/ENQUIRIES -->
+      <div class="panel" id="panel-leads">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:13px;color:var(--muted)">Enquiries submitted from the website appear here automatically.</div>
+          <button class="btn btn-outline btn-sm" onclick="clearLeads()">Clear All</button>
+        </div>
+        <div id="leads-wrap"></div>
+      </div>
+
+    </div><!-- /dash-body -->
+  </main>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- CANDIDATE -->
+<div class="mo hidden" id="cand-modal" onclick="mOut(event,'cand-modal')">
+<div class="modal">
+  <div class="modal-hd"><h2 id="cm-h">Add Candidate</h2><button class="modal-x" onclick="closeMo('cand-modal')">×</button></div>
+  <form class="mf" onsubmit="saveCand(event)">
+    <div class="mf-sep">Personal Info</div>
+    <div class="row2">
+      <div class="fg"><label>Full Name *</label><input id="cf-name" required placeholder="Full name"></div>
+      <div class="fg"><label>Mobile *</label><input id="cf-mob" required placeholder="98XXXXXXXX"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Email</label><input id="cf-email" type="email" placeholder="Optional"></div>
+      <div class="fg"><label>Qualification</label>
+        <select id="cf-qual"><option value="">Select</option><option>D.Pharm</option><option>B.Pharm</option><option>M.Pharm</option><option>B.Sc (Life Sciences)</option><option>M.Sc</option><option>MBBS</option><option>BDS</option><option>MBA (Pharma)</option><option>Graduate (Other)</option></select>
+      </div>
+    </div>
+    <div class="mf-sep">Field Details</div>
+    <div class="row2">
+      <div class="fg"><label>HQ / Location *</label>
+        <select id="cf-hq" required><option value="">Select HQ</option><optgroup label="Major HQs"><option>Bhubaneswar</option><option>Cuttack</option><option>Sambalpur</option><option>Rourkela</option><option>Berhampur</option><option>Balasore</option></optgroup><optgroup label="Tier-2/3"><option>Kalahandi</option><option>Nuapada</option><option>Bargarh</option><option>Koraput</option><option>Jharsuguda</option><option>Balangir</option></optgroup><option>Other</option></select>
+      </div>
+      <div class="fg"><label>Experience (yrs)</label><input id="cf-exp" type="number" min="0" placeholder="0"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Current / Last Company</label><input id="cf-co" placeholder="If applicable"></div>
+      <div class="fg"><label>Current Role</label>
+        <select id="cf-role"><option value="">Select</option><option>Medical Representative (MR)</option><option>Senior MR</option><option>Area Business Manager (ABM)</option><option>Zonal Business Manager (ZBM)</option><option>Product Specialist (PSR)</option><option>Detailing Sales Rep (DSR)</option><option>Fresher / Entry Level</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Product Division</label>
+        <select id="cf-div"><option value="">Select</option><option>Allopathy / Ethical</option><option>Generic</option><option>Ayurvedic / Herbal</option><option>OTC / Consumer Health</option><option>Oncology</option><option>Cardiology</option><option>Diabetology</option><option>Dermatology</option><option>Gynaecology</option><option>Paediatrics</option><option>Orthopaedics</option><option>Neurology</option><option>Gastroenterology</option><option>PCD / Franchise</option></select>
+      </div>
+      <div class="fg"><label>Doctor Segment</label>
+        <select id="cf-seg"><option value="">Select</option><option>General Physicians (GPs)</option><option>Specialists Only</option><option>Mixed (GPs + Specialists)</option><option>Hospital / Institution</option><option>Chemist-focused</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Expected CTC (₹/mo)</label><input id="cf-ctc" type="number" placeholder="20000"></div>
+      <div class="fg"><label>Availability</label>
+        <select id="cf-avail"><option>Immediate</option><option>Within 15 days</option><option>Within 30 days</option><option>1–2 months notice</option></select>
+      </div>
+    </div>
+    <div class="mf-sep">Status & Source</div>
+    <div class="row2">
+      <div class="fg"><label>Status</label>
+        <select id="cf-status"><option value="active">Active — Available</option><option value="shortlisted">Shortlisted</option><option value="deployed">Deployed</option><option value="pending">Pending Review</option><option value="inactive">Inactive</option><option value="rejected">Rejected</option></select>
+      </div>
+      <div class="fg"><label>Source</label>
+        <select id="cf-src"><option>Direct / Walk-in</option><option>Pharmacy College</option><option>Job Portal (Naukri)</option><option>Job Portal (Apna/WorkIndia)</option><option>Facebook Group</option><option>Referral</option><option>Ex-MR Network</option><option>LinkedIn</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="cf-notes" rows="2" placeholder="Doctor contacts, territory knowledge, reason for leaving..."></textarea></div>
+    <input type="hidden" id="cf-id">
+    <div class="modal-foot">
+      <button type="button" class="btn btn-outline" onclick="closeMo('cand-modal')">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Candidate</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- CLIENT -->
+<div class="mo hidden" id="cl-modal" onclick="mOut(event,'cl-modal')">
+<div class="modal">
+  <div class="modal-hd"><h2 id="clm-h">Add Client</h2><button class="modal-x" onclick="closeMo('cl-modal')">×</button></div>
+  <form class="mf" onsubmit="saveClient(event)">
+    <div class="mf-sep">Company Details</div>
+    <div class="row2">
+      <div class="fg"><label>Company Name *</label><input id="clf-co" required placeholder="e.g. Medico Pharma Ltd"></div>
+      <div class="fg"><label>Company Type</label>
+        <select id="clf-type"><option>Generic Pharma</option><option>Ethical / Branded</option><option>Ayurvedic / Herbal</option><option>OTC / Consumer Health</option><option>PCD / Franchise</option><option>Nutraceutical</option><option>Oncology Specialist</option><option>Multinational (MNC)</option><option>Hospital Supply</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Product Division</label>
+        <select id="clf-div"><option value="">Select</option><option>Allopathy / Ethical</option><option>Generic</option><option>Ayurvedic / Herbal</option><option>OTC / Consumer Health</option><option>Oncology</option><option>Cardiology</option><option>Diabetology</option><option>Dermatology</option><option>Gynaecology</option><option>Paediatrics</option><option>Orthopaedics</option><option>Neurology</option><option>Gastroenterology</option><option>PCD / Franchise</option><option>Multiple</option></select>
+      </div>
+      <div class="fg"><label>Company HQ City</label><input id="clf-city" placeholder="e.g. Bhubaneswar"></div>
+    </div>
+    <div class="mf-sep">Contact Person</div>
+    <div class="row2">
+      <div class="fg"><label>Contact Name</label><input id="clf-name" placeholder="HR / NSM / Sales Head"></div>
+      <div class="fg"><label>Designation</label>
+        <select id="clf-desig"><option value="">Select</option><option>HR Manager</option><option>National Sales Manager (NSM)</option><option>Regional Sales Manager (RSM)</option><option>Area Sales Manager (ASM)</option><option>Director / Owner</option><option>MD / CEO</option><option>Other</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Mobile *</label><input id="clf-mob" required placeholder="98XXXXXXXX"></div>
+      <div class="fg"><label>Email</label><input id="clf-email" type="email" placeholder="Optional"></div>
+    </div>
+    <div class="mf-sep">Requirement</div>
+    <div class="row2">
+      <div class="fg"><label>MRs Required</label><input id="clf-reqd" type="number" min="0" placeholder="0"></div>
+      <div class="fg"><label>Roles Needed</label>
+        <select id="clf-roles"><option>Medical Representatives (MR)</option><option>Senior MRs</option><option>Area Business Managers (ABM)</option><option>Mixed Roles</option><option>PSR / DSR</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Target Territories</label><input id="clf-terr" placeholder="e.g. Bhubaneswar, Cuttack, Kalahandi"></div>
+    <div class="row2">
+      <div class="fg"><label>CTC Range Offered</label>
+        <select id="clf-ctc"><option value="">Select</option><option>₹12,000–₹15,000</option><option>₹15,000–₹18,000</option><option>₹18,000–₹22,000</option><option>₹22,000–₹28,000</option><option>₹28,000–₹35,000</option><option>₹35,000+</option></select>
+      </div>
+      <div class="fg"><label>Joining Timeline</label>
+        <select id="clf-tl"><option>Immediate</option><option>Within 15 days</option><option>Within 1 month</option><option>Flexible</option></select>
+      </div>
+    </div>
+    <div class="mf-sep">Engagement</div>
+    <div class="row2">
+      <div class="fg"><label>Service Type</label>
+        <select id="clf-svc"><option>Full Service</option><option>Recruitment Only</option><option>Payroll Only</option><option>Compliance Only</option></select>
+      </div>
+      <div class="fg"><label>Status</label>
+        <select id="clf-status"><option value="prospect">Prospect</option><option value="active">Active Client</option><option value="inactive">Inactive</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="clf-notes" rows="2" placeholder="How we connected, specific needs, decision maker notes..."></textarea></div>
+    <input type="hidden" id="clf-id">
+    <div class="modal-foot">
+      <button type="button" class="btn btn-outline" onclick="closeMo('cl-modal')">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Client</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- DEPLOYMENT -->
+<div class="mo hidden" id="dep-modal" onclick="mOut(event,'dep-modal')">
+<div class="modal">
+  <div class="modal-hd"><h2 id="dm-h">Add Deployment</h2><button class="modal-x" onclick="closeMo('dep-modal')">×</button></div>
+  <form class="mf" onsubmit="saveDep(event)">
+    <div class="mf-sep">MR Details</div>
+    <div class="row2">
+      <div class="fg"><label>MR Name *</label><input id="df-name" required placeholder="Full name"></div>
+      <div class="fg"><label>Mobile</label><input id="df-mob" placeholder="98XXXXXXXX"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Role</label>
+        <select id="df-role"><option>Medical Representative (MR)</option><option>Senior MR</option><option>Area Business Manager (ABM)</option><option>Zonal Business Manager (ZBM)</option><option>Product Specialist (PSR)</option><option>Detailing Sales Rep (DSR)</option></select>
+      </div>
+      <div class="fg"><label>HQ / Territory *</label>
+        <select id="df-hq" required><option value="">Select HQ</option><optgroup label="Major HQs"><option>Bhubaneswar</option><option>Cuttack</option><option>Sambalpur</option><option>Rourkela</option><option>Berhampur</option><option>Balasore</option></optgroup><optgroup label="Tier-2/3"><option>Kalahandi</option><option>Nuapada</option><option>Bargarh</option><option>Koraput</option><option>Jharsuguda</option><option>Balangir</option></optgroup><option>Other</option></select>
+      </div>
+    </div>
+    <div class="mf-sep">Client & Payroll</div>
+    <div class="row2">
+      <div class="fg"><label>Client *</label><select id="df-cl" required><option value="">Select client</option></select></div>
+      <div class="fg"><label>Joining Date</label><input id="df-date" type="date"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Monthly Salary (₹)</label><input id="df-sal" type="number" placeholder="20000" oninput="calcBP()"></div>
+      <div class="fg"><label>TA/DA (₹/mo)</label><input id="df-tada" type="number" placeholder="4000" oninput="calcBP()"></div>
+    </div>
+    <div class="row2">
+      <div class="fg"><label>Management Fee (₹/mo)</label><input id="df-fee" type="number" placeholder="3000" oninput="calcBP()"></div>
+      <div class="fg"><label>Status</label><select id="df-status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+    </div>
+    <div class="bp hidden" id="bp">
+      <div class="bp-title">BILLING PREVIEW</div>
+      <div class="bp-row"><span>Total billing (excl. GST)</span><span class="bv" id="bp-sub"></span></div>
+      <div class="bp-row"><span>GST on mgmt fee (18%)</span><span class="bv" id="bp-gst"></span></div>
+      <div class="bp-total"><span>Grand Total</span><span class="bv" id="bp-tot"></span></div>
+    </div>
+    <input type="hidden" id="df-id">
+    <div class="modal-foot">
+      <button type="button" class="btn btn-outline" onclick="closeMo('dep-modal')">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Deployment</button>
+    </div>
+  </form>
+</div></div>
+
+<script>
+// ══ DATA ══
+const K={c:'asfs_c',cl:'asfs_cl',d:'asfs_d',l:'asfs_l',a:'asfs_a'};
+const ld=k=>{try{return JSON.parse(localStorage.getItem(k)||'[]');}catch{return[];}};
+const sv=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+let cands=ld(K.c),cls=ld(K.cl),deps=ld(K.d),leads=ld(K.l),acts=ld(K.a);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const now2=()=>new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+const INR=n=>'₹'+(+n||0).toLocaleString('en-IN');
+const log=t=>{acts.unshift({t,time:now2()});if(acts.length>60)acts=acts.slice(0,60);sv(K.a,acts);};
+
+// ══ AUTH ══
+function doLogin(e){
+  e.preventDefault();
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  if(u==='admin'&&p==='aaradhya2025'){
+    document.getElementById('lerr').classList.add('hidden');
+    document.getElementById('login-view').classList.remove('show');
+    document.getElementById('dash-view').classList.add('show');
+    initDash();
+  } else {
+    document.getElementById('lerr').classList.remove('hidden');
+  }
+}
+function doLogout(){
+  document.getElementById('dash-view').classList.remove('show');
+  document.getElementById('login-view').classList.add('show');
+}
+
+// ══ NAV ══
+function go(name,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  const titles={ov:'Overview',cands:'Candidate Pipeline',cl:'Client Companies',dep:'Deployed MRs',pay:'Payroll',leads:'Enquiries'};
+  document.getElementById('dash-title').textContent=titles[name]||name;
+  const ta=document.getElementById('topbar-actions');ta.innerHTML='';
+  if(name==='cands')ta.innerHTML=`<button class="btn btn-primary btn-sm" onclick="openCandModal()">+ Add Candidate</button>`;
+  if(name==='cl')ta.innerHTML=`<button class="btn btn-primary btn-sm" onclick="openClientModal()">+ Add Client</button>`;
+  if(name==='dep')ta.innerHTML=`<button class="btn btn-primary btn-sm" onclick="openDepModal()">+ Add Deployment</button>`;
+}
+
+function updateBadges(){
+  document.getElementById('nb-c').textContent=cands.length;
+  document.getElementById('nb-cl').textContent=cls.length;
+  document.getElementById('nb-d').textContent=deps.filter(d=>d.status==='active').length;
+  const nl=leads.filter(l=>l.status==='new').length;
+  const nb=document.getElementById('nb-l');nb.textContent=nl;nb.style.display=nl?'':'none';
+}
+
+// ══ INIT ══
+function initDash(){renderOv();renderCands();renderClients();renderDep();renderPayroll();renderLeads();updateBadges();}
+
+// ── OVERVIEW ──
+function renderOv(){
+  cands=ld(K.c);cls=ld(K.cl);deps=ld(K.d);leads=ld(K.l);acts=ld(K.a);
+  const aC=cands.filter(c=>c.status==='active').length;
+  const aD=deps.filter(d=>d.status==='active').length;
+  const aCl=cls.filter(c=>c.status==='active').length;
+  const fee=deps.filter(d=>d.status==='active').reduce((s,d)=>s+(+d.fee||0),0);
+  const nL=leads.filter(l=>l.status==='new').length;
+  document.getElementById('kpi-row').innerHTML=`
+    <div class="kpi" onclick="go('cands',document.getElementById('nav-cands'))"><div class="kpi-accent" style="background:var(--teal)"></div><div class="kpi-label">Active Candidates</div><div class="kpi-val">${aC}</div><div class="kpi-sub">${cands.length} total</div></div>
+    <div class="kpi" onclick="go('dep',document.getElementById('nav-dep'))"><div class="kpi-accent" style="background:var(--gold)"></div><div class="kpi-label">Deployed MRs</div><div class="kpi-val">${aD}</div><div class="kpi-sub">${deps.length} total</div></div>
+    <div class="kpi" onclick="go('cl',document.getElementById('nav-cl'))"><div class="kpi-accent" style="background:#1A6FAF"></div><div class="kpi-label">Active Clients</div><div class="kpi-val">${aCl}</div><div class="kpi-sub">${cls.length} total</div></div>
+    <div class="kpi" onclick="go('pay',document.getElementById('nav-pay'))"><div class="kpi-accent" style="background:var(--success)"></div><div class="kpi-label">Monthly Fee</div><div class="kpi-val" style="font-size:${fee>99999?'22px':'30px'}">${INR(fee)}</div><div class="kpi-sub">from ${aD} MRs</div></div>
+    <div class="kpi" onclick="go('leads',document.getElementById('nav-leads'))"><div class="kpi-accent" style="background:var(--danger)"></div><div class="kpi-label">New Enquiries</div><div class="kpi-val">${nL}</div><div class="kpi-sub">${leads.length} total</div></div>
+  `;
+  const rc=cands.slice(0,6);
+  document.getElementById('ov-cands').innerHTML=rc.length
+    ?`<table><thead><tr><th>Name</th><th>HQ</th><th>Division</th><th>Exp. CTC</th><th>Status</th></tr></thead><tbody>${rc.map(c=>`<tr><td><div class="td-main">${c.name}</div><div class="td-sub">${c.role||''}</div></td><td>${c.hq||'—'}</td><td>${c.div||'—'}</td><td>${c.ctc?INR(c.ctc):'—'}</td><td><span class="tag tag-${c.status}">${c.status}</span></td></tr>`).join('')}</tbody></table>`
+    :emptyEl('👤','No candidates yet','Add your first candidate to start building the pipeline.','openCandModal()','+ Add Candidate');
+  document.getElementById('ov-acts').innerHTML=acts.length
+    ?acts.slice(0,10).map(a=>`<div class="act-item"><div class="act-dot" style="background:var(--teal)"></div><div><div class="act-text">${a.t}</div><div class="act-time">${a.time}</div></div></div>`).join('')
+    :'<div style="padding:16px;font-size:13px;color:var(--muted)">No activity yet.</div>';
+  const rcl=cls.slice(0,5);
+  document.getElementById('ov-clients').innerHTML=rcl.length
+    ?`<table><thead><tr><th>Company</th><th>Contact</th><th>Territory</th><th>MRs Reqd</th><th>Deployed</th><th>Status</th></tr></thead><tbody>${rcl.map(c=>{const dc=deps.filter(d=>d.clientId===c.id&&d.status==='active').length;return`<tr><td><div class="td-main">${c.company}</div><div class="td-sub">${c.type||''}</div></td><td>${c.contact||'—'}</td><td>${c.territory||'—'}</td><td>${c.reqd||0}</td><td><strong style="color:${dc>0?'var(--success)':'var(--muted)'}">${dc}</strong></td><td><span class="tag tag-${c.status==='active'?'active':c.status==='prospect'?'prospect':'inactive'}">${c.status}</span></td></tr>`;}).join('')}</tbody></table>`
+    :emptyEl('🏢','No clients yet','Add your first client company.',`openClientModal()`,'+ Add Client');
+  updateBadges();
+}
+
+function emptyEl(icon,h,p,fn,label){
+  return `<div class="empty"><div class="ei">${icon}</div><h3>${h}</h3><p>${p}</p>${fn?`<button class="btn btn-primary btn-sm" onclick="${fn}">${label}</button>`:''}</div>`;
+}
+
+// ── CANDIDATES ──
+function fillCandFilters(){
+  const hqs=[...new Set(cands.map(c=>c.hq).filter(Boolean))].sort();
+  const divs=[...new Set(cands.map(c=>c.div).filter(Boolean))].sort();
+  const cfh=document.getElementById('cfh');const cur1=cfh.value;
+  cfh.innerHTML='<option value="">All HQs</option>'+hqs.map(h=>`<option${h===cur1?' selected':''}>${h}</option>`).join('');
+  const cfd=document.getElementById('cfd');const cur2=cfd.value;
+  cfd.innerHTML='<option value="">All Divisions</option>'+divs.map(d=>`<option${d===cur2?' selected':''}>${d}</option>`).join('');
+}
+function renderCands(){
+  fillCandFilters();
+  const q=(document.getElementById('cq')?.value||'').toLowerCase();
+  const fs=document.getElementById('cfs')?.value||'';
+  const fh=document.getElementById('cfh')?.value||'';
+  const fd=document.getElementById('cfd')?.value||'';
+  let data=cands;
+  if(q)data=data.filter(c=>JSON.stringify(c).toLowerCase().includes(q));
+  if(fs)data=data.filter(c=>c.status===fs);
+  if(fh)data=data.filter(c=>c.hq===fh);
+  if(fd)data=data.filter(c=>c.div===fd);
+  document.getElementById('cand-ct').textContent=`(${data.length})`;
+  document.getElementById('cand-tb').innerHTML=data.length
+    ?data.map(c=>`<tr>
+      <td><div class="td-main">${c.name}</div><div class="td-sub">${c.qual||''} ${c.exp?'· '+c.exp+'yr':''}</div></td>
+      <td>${c.mob||'—'}</td><td>${c.hq||'—'}</td>
+      <td style="font-size:12px">${(c.role||'—').replace('Medical Representative ','MR ')}</td>
+      <td>${c.div||'—'}</td>
+      <td>${c.exp||0}yr</td>
+      <td>${c.company||'—'}</td>
+      <td>${c.ctc?INR(c.ctc):'—'}</td>
+      <td><span class="tag tag-${c.status}">${c.status}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost btn-xs" onclick="openCandModal('${c.id}')">✏️</button>
+        <button class="btn btn-ghost btn-xs" onclick="delCand('${c.id}')">🗑️</button>
+      </td></tr>`).join('')
+    :`<tr><td colspan="10">${emptyEl('👤','No candidates found','Try adjusting your filters.','openCandModal()','+ Add Candidate')}</td></tr>`;
+}
+function openCandModal(id){
+  const f=id?cands.find(c=>c.id===id):{};
+  document.getElementById('cm-h').textContent=id?'Edit Candidate':'Add Candidate';
+  document.getElementById('cf-id').value=f.id||'';
+  document.getElementById('cf-name').value=f.name||'';
+  document.getElementById('cf-mob').value=f.mob||'';
+  document.getElementById('cf-email').value=f.email||'';
+  document.getElementById('cf-qual').value=f.qual||'';
+  document.getElementById('cf-hq').value=f.hq||'';
+  document.getElementById('cf-exp').value=f.exp||'';
+  document.getElementById('cf-co').value=f.company||'';
+  document.getElementById('cf-role').value=f.role||'';
+  document.getElementById('cf-div').value=f.div||'';
+  document.getElementById('cf-seg').value=f.seg||'';
+  document.getElementById('cf-ctc').value=f.ctc||'';
+  document.getElementById('cf-avail').value=f.avail||'Immediate';
+  document.getElementById('cf-status').value=f.status||'active';
+  document.getElementById('cf-src').value=f.src||'Direct / Walk-in';
+  document.getElementById('cf-notes').value=f.notes||'';
+  document.getElementById('cand-modal').classList.remove('hidden');
+}
+function delCand(id){
+  if(!confirm('Delete this candidate?'))return;
+  const c=cands.find(x=>x.id===id);
+  cands=cands.filter(x=>x.id!==id);sv(K.c,cands);log(`Removed candidate: ${c?.name}`);
+  renderCands();renderOv();updateBadges();
+}
+function saveCand(e){
+  e.preventDefault();
+  const id=document.getElementById('cf-id').value;
+  const o={
+    id:id||uid(),name:document.getElementById('cf-name').value.trim(),
+    mob:document.getElementById('cf-mob').value.trim(),email:document.getElementById('cf-email').value.trim(),
+    qual:document.getElementById('cf-qual').value,hq:document.getElementById('cf-hq').value,
+    exp:document.getElementById('cf-exp').value,company:document.getElementById('cf-co').value.trim(),
+    role:document.getElementById('cf-role').value,div:document.getElementById('cf-div').value,
+    seg:document.getElementById('cf-seg').value,ctc:document.getElementById('cf-ctc').value,
+    avail:document.getElementById('cf-avail').value,status:document.getElementById('cf-status').value,
+    src:document.getElementById('cf-src').value,notes:document.getElementById('cf-notes').value.trim(),
+  };
+  if(id){cands=cands.map(c=>c.id===id?o:c);log(`Updated candidate: ${o.name}`);}
+  else{cands.unshift(o);log(`Added candidate: ${o.name} (${o.hq||'—'})`);}
+  sv(K.c,cands);closeMo('cand-modal');renderCands();renderOv();updateBadges();
+}
+
+// ── CLIENTS ──
+function fillClientFilters(){
+  const divs=[...new Set(cls.map(c=>c.div).filter(Boolean))].sort();
+  const lfd=document.getElementById('lfd');const cur=lfd.value;
+  lfd.innerHTML='<option value="">All Divisions</option>'+divs.map(d=>`<option${d===cur?' selected':''}>${d}</option>`).join('');
+}
+function renderClients(){
+  fillClientFilters();
+  const q=(document.getElementById('lq')?.value||'').toLowerCase();
+  const fs=document.getElementById('lfs')?.value||'';
+  const fd=document.getElementById('lfd')?.value||'';
+  let data=cls;
+  if(q)data=data.filter(c=>JSON.stringify(c).toLowerCase().includes(q));
+  if(fs)data=data.filter(c=>c.status===fs);
+  if(fd)data=data.filter(c=>c.div===fd);
+  document.getElementById('cl-ct').textContent=`(${data.length})`;
+  document.getElementById('cl-tb').innerHTML=data.length
+    ?data.map(c=>{
+      const dc=deps.filter(d=>d.clientId===c.id&&d.status==='active').length;
+      const stTag=c.status==='active'?'active':c.status==='prospect'?'prospect':'inactive';
+      return `<tr>
+        <td><div class="td-main">${c.company}</div><div class="td-sub">${c.type||''}</div></td>
+        <td>${c.contact||'—'}<div class="td-sub">${c.desig||''}</div></td>
+        <td>${c.mob||'—'}</td>
+        <td>${c.territory||'—'}</td>
+        <td>${c.div||'—'}</td>
+        <td style="font-size:12px">${c.roles||'—'}</td>
+        <td style="text-align:center">${c.reqd||0}</td>
+        <td style="text-align:center"><strong style="color:${dc>0?'var(--success)':'var(--muted)'}">${dc}</strong></td>
+        <td style="font-size:12px">${c.service||'—'}</td>
+        <td><span class="tag tag-${stTag}">${c.status}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-ghost btn-xs" onclick="openClientModal('${c.id}')">✏️</button>
+          <button class="btn btn-ghost btn-xs" onclick="delClient('${c.id}')">🗑️</button>
+        </td></tr>`;
+    }).join('')
+    :`<tr><td colspan="11">${emptyEl('🏢','No clients yet','Add your first pharma client to begin tracking.','openClientModal()','+ Add Client')}</td></tr>`;
+}
+function openClientModal(id){
+  const f=id?cls.find(c=>c.id===id):{};
+  document.getElementById('clm-h').textContent=id?'Edit Client':'Add Client';
+  document.getElementById('clf-id').value=f.id||'';
+  document.getElementById('clf-co').value=f.company||'';
+  document.getElementById('clf-type').value=f.type||'Generic Pharma';
+  document.getElementById('clf-div').value=f.div||'';
+  document.getElementById('clf-city').value=f.city||'';
+  document.getElementById('clf-name').value=f.contact||'';
+  document.getElementById('clf-desig').value=f.desig||'';
+  document.getElementById('clf-mob').value=f.mob||'';
+  document.getElementById('clf-email').value=f.email||'';
+  document.getElementById('clf-reqd').value=f.reqd||'';
+  document.getElementById('clf-roles').value=f.roles||'Medical Representatives (MR)';
+  document.getElementById('clf-terr').value=f.territory||'';
+  document.getElementById('clf-ctc').value=f.ctcrange||'';
+  document.getElementById('clf-tl').value=f.timeline||'Immediate';
+  document.getElementById('clf-svc').value=f.service||'Full Service';
+  document.getElementById('clf-status').value=f.status||'prospect';
+  document.getElementById('clf-notes').value=f.notes||'';
+  document.getElementById('cl-modal').classList.remove('hidden');
+}
+function delClient(id){
+  if(!confirm('Delete this client?'))return;
+  const c=cls.find(x=>x.id===id);
+  cls=cls.filter(x=>x.id!==id);sv(K.cl,cls);log(`Removed client: ${c?.company}`);
+  renderClients();renderOv();updateBadges();
+}
+function saveClient(e){
+  e.preventDefault();
+  const id=document.getElementById('clf-id').value;
+  const o={
+    id:id||uid(),company:document.getElementById('clf-co').value.trim(),
+    type:document.getElementById('clf-type').value,div:document.getElementById('clf-div').value,
+    city:document.getElementById('clf-city').value.trim(),contact:document.getElementById('clf-name').value.trim(),
+    desig:document.getElementById('clf-desig').value,mob:document.getElementById('clf-mob').value.trim(),
+    email:document.getElementById('clf-email').value.trim(),reqd:document.getElementById('clf-reqd').value,
+    roles:document.getElementById('clf-roles').value,territory:document.getElementById('clf-terr').value.trim(),
+    ctcrange:document.getElementById('clf-ctc').value,timeline:document.getElementById('clf-tl').value,
+    service:document.getElementById('clf-svc').value,status:document.getElementById('clf-status').value,
+    notes:document.getElementById('clf-notes').value.trim(),
+  };
+  if(id){cls=cls.map(c=>c.id===id?o:c);log(`Updated client: ${o.company}`);}
+  else{cls.unshift(o);log(`Added client: ${o.company}`);}
+  sv(K.cl,cls);closeMo('cl-modal');renderClients();renderOv();updateBadges();
+}
+
+// ── DEPLOYED ──
+function fillClientDrops(){
+  const opts=cls.map(c=>`<option value="${c.id}">${c.company}</option>`).join('');
+  ['df-cl','dfc','pay-fc'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const cur=el.value;
+    el.innerHTML=(id==='df-cl'?'<option value="">Select client</option>':'<option value="">All Clients</option>')+opts;
+    if(cur)el.value=cur;
+  });
+}
+function renderDep(){
+  fillClientDrops();
+  const q=(document.getElementById('dq')?.value||'').toLowerCase();
+  const fc=document.getElementById('dfc')?.value||'';
+  const fs=document.getElementById('dfs')?.value||'';
+  let data=deps;
+  if(q)data=data.filter(d=>JSON.stringify(d).toLowerCase().includes(q));
+  if(fc)data=data.filter(d=>d.clientId===fc);
+  if(fs)data=data.filter(d=>d.status===fs);
+  document.getElementById('dep-ct').textContent=`(${data.length})`;
+  document.getElementById('dep-tb').innerHTML=data.length
+    ?data.map(d=>{
+      const cl=cls.find(c=>c.id===d.clientId);
+      return`<tr>
+        <td><div class="td-main">${d.name}</div><div class="td-sub">${d.mob||''}</div></td>
+        <td>${cl?.company||'—'}</td><td>${d.hq||'—'}</td>
+        <td style="font-size:12px">${(d.role||'MR').replace('Medical Representative ','MR ')}</td>
+        <td>${INR(d.salary)}</td><td>${INR(d.tada)}</td><td>${INR(d.fee)}</td>
+        <td>${d.date||'—'}</td>
+        <td><span class="tag tag-${d.status==='active'?'active':'inactive'}">${d.status}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-ghost btn-xs" onclick="openDepModal('${d.id}')">✏️</button>
+          <button class="btn btn-ghost btn-xs" onclick="delDep('${d.id}')">🗑️</button>
+        </td></tr>`;
+    }).join('')
+    :`<tr><td colspan="10">${emptyEl('🚀','No deployments yet','Add an MR deployment to start tracking payroll.','openDepModal()','+ Add Deployment')}</td></tr>`;
+}
+function openDepModal(id){
+  fillClientDrops();
+  const f=id?deps.find(d=>d.id===id):{};
+  document.getElementById('dm-h').textContent=id?'Edit Deployment':'Add Deployment';
+  document.getElementById('df-id').value=f.id||'';
+  document.getElementById('df-name').value=f.name||'';
+  document.getElementById('df-mob').value=f.mob||'';
+  document.getElementById('df-role').value=f.role||'Medical Representative (MR)';
+  document.getElementById('df-hq').value=f.hq||'';
+  document.getElementById('df-cl').value=f.clientId||'';
+  document.getElementById('df-date').value=f.date||'';
+  document.getElementById('df-sal').value=f.salary||'';
+  document.getElementById('df-tada').value=f.tada||'';
+  document.getElementById('df-fee').value=f.fee||'';
+  document.getElementById('df-status').value=f.status||'active';
+  calcBP();
+  document.getElementById('dep-modal').classList.remove('hidden');
+}
+function calcBP(){
+  const s=+document.getElementById('df-sal').value||0;
+  const t=+document.getElementById('df-tada').value||0;
+  const f=+document.getElementById('df-fee').value||0;
+  const bp=document.getElementById('bp');
+  if(!s&&!t&&!f){bp.classList.add('hidden');return;}
+  const gst=Math.round(f*.18);
+  document.getElementById('bp-sub').textContent=INR(s+t+f);
+  document.getElementById('bp-gst').textContent=INR(gst);
+  document.getElementById('bp-tot').textContent=INR(s+t+f+gst);
+  bp.classList.remove('hidden');
+}
+function delDep(id){
+  if(!confirm('Remove this deployment?'))return;
+  const d=deps.find(x=>x.id===id);
+  deps=deps.filter(x=>x.id!==id);sv(K.d,deps);log(`Removed deployment: ${d?.name}`);
+  renderDep();renderPayroll();renderOv();updateBadges();
+}
+function saveDep(e){
+  e.preventDefault();
+  const id=document.getElementById('df-id').value;
+  const o={
+    id:id||uid(),name:document.getElementById('df-name').value.trim(),
+    mob:document.getElementById('df-mob').value.trim(),role:document.getElementById('df-role').value,
+    hq:document.getElementById('df-hq').value,clientId:document.getElementById('df-cl').value,
+    date:document.getElementById('df-date').value,salary:+document.getElementById('df-sal').value||0,
+    tada:+document.getElementById('df-tada').value||0,fee:+document.getElementById('df-fee').value||0,
+    status:document.getElementById('df-status').value,
+  };
+  if(id){deps=deps.map(d=>d.id===id?o:d);log(`Updated deployment: ${o.name}`);}
+  else{deps.unshift(o);const cl=cls.find(c=>c.id===o.clientId);log(`New deployment: ${o.name} → ${cl?.company||'unknown'}`);}
+  sv(K.d,deps);closeMo('dep-modal');renderDep();renderPayroll();renderOv();updateBadges();
+}
+
+// ── PAYROLL ──
+function renderPayroll(){
+  fillClientDrops();
+  const months=[];const nd=new Date();
+  for(let i=0;i<12;i++){const d=new Date(nd.getFullYear(),nd.getMonth()-i,1);months.push({val:d.toISOString().slice(0,7),label:d.toLocaleString('en-IN',{month:'long',year:'numeric'})});}
+  const sel=document.getElementById('pay-month');const cur=sel.value||months[0].val;
+  sel.innerHTML=months.map(m=>`<option value="${m.val}"${m.val===cur?' selected':''}>${m.label}</option>`).join('');
+  const fc=document.getElementById('pay-fc')?.value||'';
+  let data=deps.filter(d=>d.status==='active');
+  if(fc)data=data.filter(d=>d.clientId===fc);
+  const tS=data.reduce((s,d)=>s+d.salary,0);
+  const tT=data.reduce((s,d)=>s+d.tada,0);
+  const tF=data.reduce((s,d)=>s+d.fee,0);
+  const tG=Math.round(tF*.18);
+  const tTot=tS+tT+tF+tG;
+  document.getElementById('pay-sum').innerHTML=`
+    <div class="ps-card"><div class="ps-val">${data.length}</div><div class="ps-lbl">Active MRs</div></div>
+    <div class="ps-card"><div class="ps-val" style="font-size:18px">${INR(tS)}</div><div class="ps-lbl">Salary</div></div>
+    <div class="ps-card"><div class="ps-val" style="font-size:18px">${INR(tT)}</div><div class="ps-lbl">TA/DA</div></div>
+    <div class="ps-card"><div class="ps-val" style="font-size:18px">${INR(tF)}</div><div class="ps-lbl">Mgmt Fee</div></div>
+    <div class="ps-card"><div class="ps-val" style="font-size:18px">${INR(tG)}</div><div class="ps-lbl">GST (18%)</div></div>
+    <div class="ps-card hi"><div class="ps-val">${INR(tTot)}</div><div class="ps-lbl">Grand Total</div></div>
+  `;
+  document.getElementById('pay-tb').innerHTML=data.length
+    ?data.map(d=>{const cl=cls.find(c=>c.id===d.clientId);const gst=Math.round(d.fee*.18);const tot=d.salary+d.tada+d.fee+gst;
+      return`<tr><td class="td-main">${d.name}</td><td>${cl?.company||'—'}</td><td>${d.hq}</td>
+        <td style="font-size:12px">${(d.role||'MR').replace('Medical Representative ','MR ')}</td>
+        <td>${INR(d.salary)}</td><td>${INR(d.tada)}</td><td>${INR(d.fee)}</td>
+        <td>${INR(d.salary+d.tada+d.fee)}</td><td>${INR(gst)}</td>
+        <td><strong style="color:var(--teal)">${INR(tot)}</strong></td></tr>`;}).join('')
+      +`<tr style="background:#F4F7F6;font-weight:600"><td colspan="4">TOTAL</td><td>${INR(tS)}</td><td>${INR(tT)}</td><td>${INR(tF)}</td><td>${INR(tS+tT+tF)}</td><td>${INR(tG)}</td><td style="color:var(--teal)">${INR(tTot)}</td></tr>`
+    :`<tr><td colspan="10">${emptyEl('💰','No active deployments','Add deployed MRs to generate payroll reports.',null,'')}</td></tr>`;
+}
+
+// ── LEADS ──
+function renderLeads(){
+  document.getElementById('leads-wrap').innerHTML=leads.length
+    ?leads.map(l=>`
+      <div class="lead-card">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            <h4>${l.company}</h4>${l.status==='new'?'<span class="lead-new">NEW</span>':''}
+          </div>
+          <div class="lead-meta">
+            <span>👤 ${l.name}</span><span>📞 ${l.mobile}</span>
+            ${l.territory?`<span>📍 ${l.territory}</span>`:''}
+            ${l.count?`<span>👥 ${l.count} MRs</span>`:''}
+            ${l.division?`<span>💊 ${l.division}</span>`:''}
+            ${l.service?`<span>🔧 ${l.service}</span>`:''}
+            <span style="color:var(--muted)">🕐 ${l.date}</span>
+          </div>
+          ${l.notes?`<div style="margin-top:6px;font-size:12px;color:var(--muted)">${l.notes}</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <a href="https://wa.me/${(l.mobile||'').replace(/\D/g,'')}" target="_blank" class="btn btn-wa btn-sm">💬 WhatsApp</a>
+          ${l.status==='new'?`<button class="btn btn-outline btn-sm" onclick="markRead('${l.id}')">Mark Read</button>`:''}
+          <button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="delLead('${l.id}')">Delete</button>
+        </div>
+      </div>`).join('')
+    :emptyEl('📥','No enquiries yet','Enquiries submitted from the website appear here automatically.',null,'');
+  updateBadges();
+}
+function markRead(id){leads=leads.map(l=>l.id===id?{...l,status:'read'}:l);sv(K.l,leads);renderLeads();renderOv();}
+function delLead(id){if(!confirm('Delete?'))return;leads=leads.filter(l=>l.id!==id);sv(K.l,leads);renderLeads();renderOv();}
+function clearLeads(){if(!leads.length||!confirm('Delete all enquiries?'))return;leads=[];sv(K.l,leads);renderLeads();renderOv();}
+
+// ── MODALS ──
+function closeMo(id){document.getElementById(id).classList.add('hidden');}
+function mOut(e,id){if(e.target.id===id)closeMo(id);}
+</script>
+</body>
+</html>

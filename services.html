@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Our Services — Aaradhya Sales Force Solutions</title>
+<link rel="stylesheet" href="_shared.css">
+<style>
+.svc-section { padding: 80px 0; border-bottom: 1px solid var(--border); }
+.svc-section:last-of-type { border-bottom: none; }
+.svc-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.svc-layout.flip { direction: rtl; }
+.svc-layout.flip > * { direction: ltr; }
+.svc-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(0,82,74,.08); color: var(--teal); border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 500; margin-bottom: 20px; }
+.svc-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 3.5vw, 44px); font-weight: 700; line-height: 1.1; margin-bottom: 16px; }
+.svc-lead { font-size: 16px; color: var(--muted); line-height: 1.75; margin-bottom: 28px; }
+.svc-points { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+.svc-point { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.6; }
+.svc-point-dot { width: 20px; height: 20px; border-radius: 50%; background: rgba(0,82,74,.1); color: var(--teal); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.svc-visual { background: var(--page-bg); border-radius: 20px; padding: 36px; border: 1px solid var(--border); }
+.svc-visual-title { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 20px; }
+.svc-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.svc-stat { background: #fff; border-radius: 12px; padding: 18px; border: 1px solid var(--border); text-align: center; }
+.svc-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 700; color: var(--teal); line-height: 1; }
+.svc-stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.roles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.role-chip { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 500; color: var(--dark); }
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; gap: 16px; padding-bottom: 20px; position: relative; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-item::before { content:''; position:absolute; left: 14px; top: 30px; bottom: 0; width: 2px; background: var(--border); }
+.tl-item:last-child::before { display: none; }
+.tl-dot { width: 30px; height: 30px; border-radius: 50%; background: var(--teal); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; z-index: 1; }
+.tl-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.tl-content p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.billing-table { background: #fff; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+.bt-head { background: var(--teal); color: #fff; padding: 12px 18px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.bt-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 18px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.bt-row:last-child { border-bottom: none; }
+.bt-row .lbl { color: var(--muted); }
+.bt-row .val { font-weight: 600; color: var(--teal); }
+.divs-list { display: flex; flex-direction: column; gap: 8px; }
+.div-item { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+.div-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.compliance-steps { display: flex; flex-direction: column; gap: 12px; }
+.cs-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.cs-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.cs-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.cs-item p { font-size: 12px; color: var(--muted); }
+.cta-band { background: linear-gradient(135deg,var(--teal),var(--teal-mid)); padding: 64px 0; }
+.cta-inner { display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+.cta-band h2 { font-family: 'Cormorant Garamond',serif; font-size: clamp(28px,4vw,44px); font-weight: 700; color: #fff; }
+.cta-band p { font-size: 15px; color: rgba(255,255,255,.6); margin-top: 8px; }
+.cta-actions { display: flex; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
+@media(max-width:768px){
+  .svc-layout{grid-template-columns:1fr;} .svc-layout.flip{direction:ltr;}
+  .svc-stat-row{grid-template-columns:1fr 1fr;} .roles-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<script>window.ACTIVE_PAGE='services.html';</script>
+
+<div class="page-hero">
+  <div class="page-hero-bg"></div><div class="page-hero-grid"></div>
+  <div class="container page-hero-content">
+    <div class="eyebrow light">What We Do</div>
+    <h1>End-to-End<em>Field Force Services</em></h1>
+    <p>Every layer of pharma field force management — recruitment, payroll, deployment and compliance — handled by specialists who understand the industry from the inside.</p>
+  </div>
+</div>
+
+<!-- RECRUITMENT -->
+<div id="recruitment" class="svc-section">
+<div class="container">
+<div class="svc-layout">
+  <div>
+    <div class="svc-badge">🎯 MR Recruitment</div>
+    <h2 class="svc-title">Find the Right MR for Every Territory</h2>
+    <p class="svc-lead">We source, screen and shortlist Medical Representatives matched to your specific territory, product division and CTC band — from a pre-built, always-active pipeline.</p>
+    <div class="svc-points">
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Territory-matched sourcing — we know which candidates are right for Kalahandi vs Bhubaneswar</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Full screening: communication, doctor segment knowledge, product background and stability</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>48-hour shortlist delivery — with full candidate profiles including current CTC and notice period</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Roles covered: MR, Senior MR, ABM, ZBM, PSR, DSR — all levels, all divisions</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Replacement guarantee — if an MR leaves within the agreed SLA, we source a replacement at no extra charge</div></div>
+    </div>
+    <a href="contact.html" class="btn btn-primary">Request Candidates</a>
+  </div>
+  <div class="svc-visual">
+    <div class="svc-visual-title">Roles We Fill</div>
+    <div class="roles-grid">
+      <div class="role-chip">Medical Representative (MR)</div>
+      <div class="role-chip">Senior MR</div>
+      <div class="role-chip">Area Business Manager (ABM)</div>
+      <div class="role-chip">Zonal Business Manager (ZBM)</div>
+      <div class="role-chip">Product Specialist (PSR)</div>
+      <div class="role-chip">Detailing Sales Rep (DSR)</div>
+    </div>
+    <div class="svc-visual-title" style="margin-top:28px">Product Divisions Covered</div>
+    <div class="divs-list">
+      <div class="div-item"><div class="div-dot" style="background:var(--teal)"></div>Allopathy / Ethical</div>
+      <div class="div-item"><div class="div-dot" style="background:var(--gold)"></div>Generic Pharma</div>
+      <div class="div-item"><div class="div-dot" style="background:#8E44AD"></div>Ayurvedic / Herbal</div>
+      <div class="div-item"><div class="div-dot" style="background:#1A6FAF"></div>Cardiology / Diabetology / Oncology</div>
+      <div class="div-item"><div class="div-dot" style="background:#16A085"></div>Dermatology / Gynaecology / Paediatrics</div>
+      <div class="div-item"><div class="div-dot" style="background:#E67E22"></div>PCD / Franchise Division</div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- PAYROLL -->
+<div id="payroll" class="svc-section" style="background:var(--page-bg)">
+<div class="container">
+<div class="svc-layout flip">
+  <div>
+    <div class="svc-badge">💰 Payroll Management</div>
+    <h2 class="svc-title">One Invoice. Zero Complexity.</h2>
+    <p class="svc-lead">We manage the complete monthly payroll cycle for your deployed MRs — salary disbursement, TA/DA processing, payslips and statutory deductions — so your team never touches it.</p>
+    <div class="svc-points">
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Monthly salary disbursement directly to MR bank accounts — bank transfer only, fully traceable</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>TA/DA processing based on your approved rates — with monthly expense summaries</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Professional payslips generated and shared with each MR monthly</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Single consolidated invoice to your company covering salary, TA/DA and management fee</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>GST applied only on management fee — not on the full billing amount</div></div>
+    </div>
+    <a href="contact.html" class="btn btn-primary">Discuss Payroll Setup</a>
+  </div>
+  <div class="svc-visual">
+    <div class="svc-visual-title">Sample Monthly Billing (per MR)</div>
+    <div class="billing-table">
+      <div class="bt-head">Billing Breakdown</div>
+      <div class="bt-row"><span class="lbl">MR Salary</span><span class="val">₹18,000 – ₹22,000</span></div>
+      <div class="bt-row"><span class="lbl">TA / DA</span><span class="val">₹3,000 – ₹5,000</span></div>
+      <div class="bt-row"><span class="lbl">Management Fee</span><span class="val">₹2,000 – ₹5,000</span></div>
+      <div class="bt-row"><span class="lbl">GST (18%)</span><span class="val" style="font-size:12px">On mgmt fee only</span></div>
+    </div>
+    <div class="svc-stat-row" style="margin-top:18px">
+      <div class="svc-stat"><div class="svc-stat-val">1</div><div class="svc-stat-label">Invoice per month</div></div>
+      <div class="svc-stat"><div class="svc-stat-val">0</div><div class="svc-stat-label">Hidden charges</div></div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- DEPLOYMENT -->
+<div id="deployment" class="svc-section">
+<div class="container">
+<div class="svc-layout">
+  <div>
+    <div class="svc-badge">🗺️ Field Deployment</div>
+    <h2 class="svc-title">Field-Ready in 48–72 Hours</h2>
+    <p class="svc-lead">From selection to territory briefing to first doctor call — we manage the entire deployment process so your MRs hit the ground running from day one.</p>
+    <div class="svc-points">
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Coverage across all major Odisha HQs plus Tier-2/3 markets where big agencies don't operate</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Territory briefing — we provide MRs with doctor lists, chemist networks and key stockist contacts</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Joining documentation, offer letters and onboarding handled end-to-end by our team</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Backup candidate pool maintained at all times — 20–30 ready candidates across Odisha</div></div>
+    </div>
+    <a href="contact.html" class="btn btn-primary">Check Coverage in Your Territory</a>
+  </div>
+  <div class="svc-visual">
+    <div class="svc-visual-title">Deployment Timeline</div>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot">1</div><div class="tl-content"><h4>Requirement shared</h4><p>Territory, CTC, division — Day 0</p></div></div>
+      <div class="tl-item"><div class="tl-dot">2</div><div class="tl-content"><h4>Shortlist delivered</h4><p>3–5 screened profiles — Day 1–2</p></div></div>
+      <div class="tl-item"><div class="tl-dot">3</div><div class="tl-content"><h4>Your interview & selection</h4><p>Final call stays with you — Day 2–3</p></div></div>
+      <div class="tl-item"><div class="tl-dot">4</div><div class="tl-content"><h4>Offer & documentation</h4><p>Offer letter issued, joining date set — Day 3–5</p></div></div>
+      <div class="tl-item"><div class="tl-dot">5</div><div class="tl-content"><h4>MR joins & starts field</h4><p>Territory briefed, doctor calls begin — Day 7–10</p></div></div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- COMPLIANCE -->
+<div id="compliance" class="svc-section" style="background:var(--page-bg)">
+<div class="container">
+<div class="svc-layout flip">
+  <div>
+    <div class="svc-badge">✅ Compliance Support</div>
+    <h2 class="svc-title">Statutory Compliance, Handled</h2>
+    <p class="svc-lead">As your deployed MR headcount grows, we ensure every statutory requirement is met — so you're never exposed to compliance risk.</p>
+    <div class="svc-points">
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Professional offer letters and appointment documents for every deployed MR</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>PF (Provident Fund) registration and monthly contribution management for teams above 20</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>ESIC registration and monthly compliance for eligible employees</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>Labour law compliance guidance as your field force scales from 5 to 50+ MRs</div></div>
+      <div class="svc-point"><div class="svc-point-dot">✓</div><div>CA support for statutory filings — we work with trusted chartered accountants</div></div>
+    </div>
+    <a href="contact.html" class="btn btn-primary">Get Compliance Support</a>
+  </div>
+  <div class="svc-visual">
+    <div class="svc-visual-title">Compliance Milestones</div>
+    <div class="compliance-steps">
+      <div class="cs-item"><div class="cs-icon">📄</div><div><h4>From Day 1</h4><p>Offer letters, appointment letters and NDA for every MR</p></div></div>
+      <div class="cs-item"><div class="cs-icon">💊</div><div><h4>From 10 MRs</h4><p>Salary slips, TA/DA statements and basic labour compliance</p></div></div>
+      <div class="cs-item"><div class="cs-icon">🛡️</div><div><h4>From 20 MRs</h4><p>PF registration and monthly employer contribution managed</p></div></div>
+      <div class="cs-item"><div class="cs-icon">🏥</div><div><h4>From 20 MRs</h4><p>ESIC registration for eligible field employees</p></div></div>
+      <div class="cs-item"><div class="cs-icon">📊</div><div><h4>Ongoing</h4><p>CA-supported statutory filings and labour compliance review</p></div></div>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- REPLACEMENT + SUPPORT -->
+<div id="replacement" class="svc-section">
+<div class="container">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+    <div class="card card-pad" id="support">
+      <div class="svc-badge">🔄 Replacement Guarantee</div>
+      <h3 style="font-size:22px;font-weight:700;margin-bottom:12px">No Disruption When an MR Exits</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px">MR attrition is the biggest pain point in pharma field force. We solve it with a structured replacement guarantee built into every engagement.</p>
+      <div class="svc-points">
+        <div class="svc-point"><div class="svc-point-dot">✓</div><div>Replacement shortlist delivered within agreed SLA (typically 5–7 working days)</div></div>
+        <div class="svc-point"><div class="svc-point-dot">✓</div><div>Backup pool of 20–30 ready candidates maintained continuously across Odisha</div></div>
+        <div class="svc-point"><div class="svc-point-dot">✓</div><div>No additional recruitment fee for replacements within the SLA window</div></div>
+      </div>
+    </div>
+    <div class="card card-pad">
+      <div class="svc-badge">🤝 Dedicated Support</div>
+      <h3 style="font-size:22px;font-weight:700;margin-bottom:12px">One Contact. Always Reachable.</h3>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px">You'll have a single dedicated point of contact who knows your business, your territories and your requirements — not a call centre.</p>
+      <div class="svc-points">
+        <div class="svc-point"><div class="svc-point-dot">✓</div><div>Direct WhatsApp and phone access — no ticketing system or wait queues</div></div>
+        <div class="svc-point"><div class="svc-point-dot">✓</div><div>Monthly performance check-ins on deployed MR status and territory health</div></div>
+        <div class="svc-point"><div class="svc-point-dot">✓</div><div>Proactive updates on candidate pipeline and market changes in your territory</div></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- CTA -->
+<div class="cta-band">
+  <div class="container">
+    <div class="cta-inner">
+      <div><h2>Need Any of These Services?</h2><p>Tell us your requirement and we'll have a plan ready within 24 hours.</p></div>
+      <div class="cta-actions">
+        <a href="contact.html" class="btn btn-gold btn-lg">Get in Touch</a>
+        <a href="https://wa.me/91XXXXXXXXXX" target="_blank" class="btn btn-wa btn-lg">💬 WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="_layout.js"></script>
+</body></html>
